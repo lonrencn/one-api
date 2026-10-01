@@ -21,6 +21,7 @@ import {
 
 import { ITEMS_PER_PAGE } from '../constants';
 import { renderQuota } from '../helpers/render';
+import TokenHeatmap from './TokenHeatmap';
 
 function renderTimestamp(timestamp) {
   return <>{timestamp2string(timestamp)}</>;
@@ -85,6 +86,7 @@ const TokensTable = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [searching, setSearching] = useState(false);
   const [showTopUpModal, setShowTopUpModal] = useState(false);
+  const [heatmapToken, setHeatmapToken] = useState(null);
   const [targetTokenIdx, setTargetTokenIdx] = useState(0);
   const [orderBy, setOrderBy] = useState('');
 
@@ -449,6 +451,13 @@ const TokensTable = () => {
                           trigger={<></>}
                         />
                       </Button.Group>{' '}
+                      <Button
+                        size={'tiny'}
+                        color={'teal'}
+                        onClick={() => setHeatmapToken(token.name)}
+                      >
+                        热力图
+                      </Button>{' '}
                       <Popup
                         trigger={
                           <Button size='mini' negative>
@@ -541,6 +550,11 @@ const TokensTable = () => {
           </Table.Row>
         </Table.Footer>
       </Table>
+      <TokenHeatmap
+        open={heatmapToken !== null}
+        onClose={() => setHeatmapToken(null)}
+        tokenName={heatmapToken || ''}
+      />
     </>
   );
 };

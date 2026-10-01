@@ -249,3 +249,27 @@ func SearchLogsByDayAndModel(userId, start, end int) (LogStatistics []*LogStatis
 
 	return LogStatistics, err
 }
+
+// HeatmapPoint 热力图聚合点
+type HeatmapPoint struct {
+	Bucket int64  `json:"bucket"`
+	Model  string `json:"model"`
+	Calls  int64  `json:"calls"`
+	Quota  int64  `json:"quota"`
+}
+
+// GetUsageHeatmap 按时间桶聚合消耗日志(wendao: 令牌热力图)
+func GetUsageHeatmap(userId int, tokenName string, startTimestamp int64, endTimestamp int64, bucketSeconds int64) (points []*HeatmapPoint, err error) {
+	bucketExpr := fmt.Sprintf("created_at - (created_at %% %d)", bucketSeconds)
+	tx := LOG_DB.Model(&Log{}).
+		Select(fmt.Sprintf("%s as bucket, model_name as model, count(*) as calls, ifnull(sum(quota),0) as quota", bucketExpr)).
+		Where("type = ? and created_at >= ? and created_at <= ?", LogTypeConsume, startTimestamp, endTimestamp)
+	if userId > 0 {
+		tx = tx.Where("user_id = ?", userId)
+	}
+	if tokenName != "" {
+		tx = tx.Where("token_name = ?", tokenName)
+	}
+	err = tx.Group("bucket, model_name").Order("bucket asc").Limit(20000).Scan(&points).Error
+	return points, err
+}
