@@ -1,3 +1,19 @@
+# One API · 问道维护版（wendao 分支）
+
+> 本分支是 [songquanpeng/one-api](https://github.com/songquanpeng/one-api) 的自维护 fork，供问道（WENDAO）内部使用与二次修改。主线代码保持与上游同步，自有改动全部记录在下表。
+
+## 基线版本与修改记录
+
+### 基线：`v0.6.11-preview.7`（与生产部署版本一致）
+
+| 日期 | 文件 | 修改内容 | 原因 |
+|---|---|---|---|
+| 2026-10-01 | `controller/auth/oidc.go` | ① OIDC token 请求由 JSON body 改为标准 `application/x-www-form-urlencoded` 表单；② 增加 token 端点非 200 状态检查，直接返回上游错误详情 | 上游用 JSON 发授权码交换请求，Keycloak 等严格遵循 OAuth2 规范的 IdP 只接受表单编码，导致对接 Keycloak 时登录必失败并报 `EOF` |
+
+**同步上游时注意**：`controller/auth/oidc.go` 为本地改动文件，合并冲突时以表单编码版本为准。
+
+---
+
 <p align="right">
    <strong>中文</strong> | <a href="./README.en.md">English</a> | <a href="./README.ja.md">日本語</a>
 </p>
