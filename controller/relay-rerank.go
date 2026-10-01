@@ -84,9 +84,23 @@ func RelayRerank(c *gin.Context) {
 			Usage *struct {
 				TotalTokens int `json:"total_tokens"`
 			} `json:"usage"`
+			Meta *struct {
+				Tokens *struct {
+					InputTokens  int `json:"input_tokens"`
+					OutputTokens int `json:"output_tokens"`
+				} `json:"tokens"`
+			} `json:"meta"`
 		}
-		if json.Unmarshal(respBody, &payload) == nil && payload.Usage != nil && payload.Usage.TotalTokens > 0 {
-			quota := int64(payload.Usage.TotalTokens)
+		tokens := 0
+		if json.Unmarshal(respBody, &payload) == nil {
+			if payload.Usage != nil {
+				tokens = payload.Usage.TotalTokens
+			} else if payload.Meta != nil && payload.Meta.Tokens != nil {
+				tokens = payload.Meta.Tokens.InputTokens + payload.Meta.Tokens.OutputTokens
+			}
+		}
+		if tokens > 0 {
+			quota := int64(tokens)
 			_ = model.CacheDecreaseUserQuota(c.GetInt(ctxkey.Id), quota)
 			_ = model.DecreaseTokenQuota(c.GetInt(ctxkey.TokenId), quota)
 			model.RecordConsumeLog(context.Background(), &model.Log{
@@ -94,7 +108,7 @@ func RelayRerank(c *gin.Context) {
 				ChannelId:    c.GetInt(ctxkey.ChannelId),
 				TokenName:    c.GetString(ctxkey.TokenName),
 				ModelName:    modelName,
-				PromptTokens: payload.Usage.TotalTokens,
+				PromptTokens: tokens,
 				Quota:        int(quota),
 				Content:      "rerank 透传计费",
 			})
