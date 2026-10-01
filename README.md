@@ -11,6 +11,7 @@
 | 2026-10-01 | `controller/auth/oidc.go` | ① OIDC token 请求由 JSON body 改为标准 `application/x-www-form-urlencoded` 表单；② 增加 token 端点非 200 状态检查，直接返回上游错误详情 | 上游用 JSON 发授权码交换请求，Keycloak 等严格遵循 OAuth2 规范的 IdP 只接受表单编码，导致对接 Keycloak 时登录必失败并报 `EOF` |
 
 | 2026-10-01 | `Dockerfile` | 移除 `FROM --platform=$BUILDPLATFORM` 前缀 | 兼容 Portainer/传统 docker build（非 BuildKit）构建 |
+| 2026-10-01 | `relay/controller/rerank.go`、`router/relay.go` | 新增 `/v1/rerank` 透传端点:智谱走 `/api/paas/v4/rerank`,其余 OpenAI 兼容渠道走 `/v1/rerank`;应用渠道 model_mapping;按 usage.total_tokens 计费 | 上游不支持重排接口,OpenViking 检索链需要统一经网关调用重排 |
 **同步上游时注意**：`controller/auth/oidc.go` 为本地改动文件，合并冲突时以表单编码版本为准。
 
 ---
