@@ -326,6 +326,7 @@ const TokensTable = () => {
             >
               {t('token.table.name')}
             </Table.HeaderCell>
+            <Table.HeaderCell>备注</Table.HeaderCell>
             <Table.HeaderCell
               style={{ cursor: 'pointer' }}
               onClick={() => {
@@ -399,6 +400,9 @@ const TokensTable = () => {
                 <Table.Row key={token.id}>
                   <Table.Cell>
                     {token.name ? token.name : t('token.table.no_name')}
+                  </TableCell>
+                  <TableCell title={token.remark || ''}>
+                    {token.remark ? (token.remark.length > 24 ? token.remark.slice(0, 24) + '…' : token.remark) : '—'}
                   </Table.Cell>
                   <Table.Cell>{renderStatus(token.status, t)}</Table.Cell>
                   <Table.Cell>{renderQuota(token.used_quota, t)}</Table.Cell>
@@ -495,7 +499,7 @@ const TokensTable = () => {
 
         <Table.Footer>
           <Table.Row>
-            <Table.HeaderCell colSpan='7'>
+            <Table.HeaderCell colSpan='8'>
               <Button size='small' as={Link} to='/token/add' loading={loading}>
                 {t('token.buttons.add')}
               </Button>

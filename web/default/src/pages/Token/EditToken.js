@@ -32,6 +32,7 @@ const EditToken = () => {
     unlimited_quota: false,
     models: [],
     subnet: '',
+    remark: '',
   };
   const [inputs, setInputs] = useState(originInputs);
   const { name, remain_quota, expired_time, unlimited_quota } = inputs;
@@ -196,6 +197,16 @@ const EditToken = () => {
                 placeholder={t('token.edit.ip_limit_placeholder')}
                 onChange={handleInputChange}
                 value={inputs.subnet}
+                autoComplete='new-password'
+              />
+            </Form.Field>
+            <Form.Field>
+              <Form.Input
+                label='备注（用途/使用域/日期）'
+                name='remark'
+                placeholder='例如: 项目A问答机器人 | .19 | 2026-10-01 | 负责人:张三'
+                onChange={handleInputChange}
+                value={inputs.remark || ''}
                 autoComplete='new-password'
               />
             </Form.Field>

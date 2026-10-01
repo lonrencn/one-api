@@ -150,6 +150,7 @@ func AddToken(c *gin.Context) {
 		UnlimitedQuota: token.UnlimitedQuota,
 		Models:         token.Models,
 		Subnet:         token.Subnet,
+		Remark:         token.Remark,
 	}
 	err = cleanToken.Insert()
 	if err != nil {
@@ -239,6 +240,9 @@ func UpdateToken(c *gin.Context) {
 		cleanToken.UnlimitedQuota = token.UnlimitedQuota
 		cleanToken.Models = token.Models
 		cleanToken.Subnet = token.Subnet
+	if token.Remark != nil {
+		cleanToken.Remark = token.Remark
+	}
 	}
 	err = cleanToken.Update()
 	if err != nil {
