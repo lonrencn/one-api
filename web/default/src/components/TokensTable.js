@@ -401,7 +401,7 @@ const TokensTable = () => {
                   <Table.Cell>
                     {token.name ? token.name : t('token.table.no_name')}
                   </TableCell>
-                  <TableCell title={token.remark || ''}>
+                  <Table.Cell title={token.remark || ''}>
                     {token.remark ? (token.remark.length > 24 ? token.remark.slice(0, 24) + '…' : token.remark) : '—'}
                   </Table.Cell>
                   <Table.Cell>{renderStatus(token.status, t)}</Table.Cell>
