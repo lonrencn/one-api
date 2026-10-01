@@ -1,12 +1,14 @@
 package auth
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-contrib/sessions"
@@ -46,15 +48,15 @@ func getOidcUserInfoByCode(code string) (*OidcUser, error) {
 		"grant_type":    "authorization_code",
 		"redirect_uri":  fmt.Sprintf("%s/oauth/oidc", config.ServerAddress),
 	}
-	jsonData, err := json.Marshal(values)
+	formData := make(url.Values, len(values))
+	for k, v := range values {
+		formData.Set(k, v)
+	}
+	req, err := http.NewRequest("POST", config.OidcTokenEndpoint, strings.NewReader(formData.Encode()))
 	if err != nil {
 		return nil, err
 	}
-	req, err := http.NewRequest("POST", config.OidcTokenEndpoint, bytes.NewBuffer(jsonData))
-	if err != nil {
-		return nil, err
-	}
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Accept", "application/json")
 	client := http.Client{
 		Timeout: 5 * time.Second,
@@ -65,6 +67,10 @@ func getOidcUserInfoByCode(code string) (*OidcUser, error) {
 		return nil, errors.New("无法连接至 OIDC 服务器，请稍后重试！")
 	}
 	defer res.Body.Close()
+	if res.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(res.Body)
+		return nil, fmt.Errorf("OIDC token endpoint returned %d: %s", res.StatusCode, string(body))
+	}
 	var oidcResponse OidcResponse
 	err = json.NewDecoder(res.Body).Decode(&oidcResponse)
 	if err != nil {
